@@ -53,9 +53,7 @@ def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, An
     SELECT
       dd.item_date,
       fp.product_id,
-      COALESCE(SUM(dps.daily_purchase_quantity), 0) AS total_quantity,
-      lpi.latest_info.title AS product_title,
-      lpi.latest_info.image_url AS product_image
+      COALESCE(SUM(dps.daily_purchase_quantity), 0) AS total_quantity
     FROM
       FilteredProducts fp
     CROSS JOIN
@@ -65,15 +63,11 @@ def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, An
     ON
       dd.item_date = dps.order_date
       AND fp.product_id = dps.product_id
-    LEFT JOIN
-      LatestProductInfo lpi
-    ON
-      fp.product_id = lpi.product_id
     WHERE
       dd.item_date BETWEEN '{start_date}' AND '{end_date}'
       AND dd.type = 1  # Add the condition here
     GROUP BY
-      dd.item_date, fp.product_id, lpi.latest_info.title, lpi.latest_info.image_url
+      dd.item_date, fp.product_id
     ORDER BY
       dd.item_date, fp.product_id
     """
