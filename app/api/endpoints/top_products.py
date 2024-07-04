@@ -20,7 +20,6 @@ class TopProductsRequest(BaseModel):
 class TopProductsResponse(BaseModel):
     dates: List[str]
     data: Dict[int, List[int]]
-    product_info: Dict[int, Dict[str, str]]
 
 # Query function
 def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, Any]:
