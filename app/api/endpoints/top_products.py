@@ -38,17 +38,6 @@ def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, An
       ORDER BY 
         total_purchase_quantity DESC
       LIMIT {limit}
-    ),
-    LatestProductInfo AS (
-      SELECT 
-        product_id,
-        ARRAY_AGG(STRUCT(title, image_url) ORDER BY order_created_at DESC LIMIT 1)[OFFSET(0)] AS latest_info
-      FROM 
-        `allwebi.tb_order_items`
-      WHERE 
-        product_id IN (SELECT product_id FROM FilteredProducts)
-      GROUP BY 
-        product_id
     )
     SELECT
       dd.item_date,
@@ -76,7 +65,6 @@ def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, An
 
     dates = sorted({row['item_date'] for row in results})
     data = defaultdict(lambda: [0] * len(dates))
-    product_info = {}
 
     date_index = {date: idx for idx, date in enumerate(dates)}
 
@@ -84,17 +72,10 @@ def get_top_products(start_date: str, end_date: str, limit: int) -> Dict[str, An
         item_date = row['item_date']
         product_id = row['product_id']
         total_quantity = row['total_quantity']
-        product_title = row['product_title']
-        product_image = row['product_image']
 
         data[product_id][date_index[item_date]] = total_quantity
-        if product_id not in product_info:
-            product_info[product_id] = {
-                "product_title": product_title,
-                "product_image": product_image
-            }
 
-    return {"dates": dates, "data": dict(data), "product_info": product_info}
+    return {"dates": dates, "data": dict(data)}
 
 @router.post("/top-products", response_model=TopProductsResponse)
 async def top_products(request: TopProductsRequest):
