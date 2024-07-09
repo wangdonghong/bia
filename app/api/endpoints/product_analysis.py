@@ -33,20 +33,20 @@ class ApiResponse(BaseModel):
 def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
     # 计算偏移量
     offset = (request.page - 1) * request.limit
-    department_types_str = request.department_types
-    brand_department_id = request.brand_department_id
-    site_id = request.site_id
-    online_time_start = request.online_time_start
-    online_time_end = request.online_time_end
-    start_date_today = request.start_date_today
-    end_date_today = request.end_date_today
-    start_date_yesterday = request.start_date_yesterday
-    end_date_yesterday = request.end_date_yesterday
+    # department_types_str = request.department_types
+    # brand_department_id = request.brand_department_id
+    # site_id = request.site_id
+    # online_time_start = request.online_time_start
+    # online_time_end = request.online_time_end
+    # start_date_today = request.start_date_today
+    # end_date_today = request.end_date_today
+    # start_date_yesterday = request.start_date_yesterday
+    # end_date_yesterday = request.end_date_yesterday
 
-    try:
-        department_types = [int(dt.strip()) for dt in department_types_str.split(',') if dt.strip().isdigit()]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid department_types parameter")
+    # try:
+    #     department_types = [int(dt.strip()) for dt in department_types_str.split(',') if dt.strip().isdigit()]
+    # except ValueError:
+    #     raise HTTPException(status_code=400, detail="Invalid department_types parameter")
 
     # department_type_condition = ""
     # if department_types:
