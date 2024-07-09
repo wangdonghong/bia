@@ -48,36 +48,36 @@ def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid department_types parameter")
 
-    department_type_condition = ""
-    if department_types:
-        formatted_department_types = ','.join(map(str, department_types))
-        department_type_condition = f"AND bd.department_type IN ({formatted_department_types})"
+    # department_type_condition = ""
+    # if department_types:
+    #     formatted_department_types = ','.join(map(str, department_types))
+    #     department_type_condition = f"AND bd.department_type IN ({formatted_department_types})"
 
-    brand_department_condition = ""
-    if brand_department_id:
-        brand_department_condition = f"AND s.brand_department_id = {brand_department_id}"
+    # brand_department_condition = ""
+    # if brand_department_id:
+    #     brand_department_condition = f"AND s.brand_department_id = {brand_department_id}"
 
-    site_condition = ""
-    if site_id:
-        try:
-            site_ids = [int(id.strip()) for id in site_id.split(',') if id.strip().isdigit()]
-            if site_ids:
-                formatted_site_ids = ','.join(map(str, site_ids))
-                site_condition = f"AND oi.site_id IN ({formatted_site_ids})"
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid site_id parameter")
+    # site_condition = ""
+    # if site_id:
+    #     try:
+    #         site_ids = [int(id.strip()) for id in site_id.split(',') if id.strip().isdigit()]
+    #         if site_ids:
+    #             formatted_site_ids = ','.join(map(str, site_ids))
+    #             site_condition = f"AND oi.site_id IN ({formatted_site_ids})"
+    #     except ValueError:
+    #         raise HTTPException(status_code=400, detail="Invalid site_id parameter")
 
-    online_time_condition = ""
-    if online_time_start and online_time_end:
-        online_time_condition = f"AND oi.online_time BETWEEN '{online_time_start}' AND '{online_time_end}'"
+    # online_time_condition = ""
+    # if online_time_start and online_time_end:
+    #     online_time_condition = f"AND oi.online_time BETWEEN '{online_time_start}' AND '{online_time_end}'"
 
-    date_today_condition = ""
-    if start_date_today and end_date_today:
-        date_today_condition = f"AND oi.order_created_at BETWEEN '{start_date_today}' AND '{end_date_today}'"
+    # date_today_condition = ""
+    # if start_date_today and end_date_today:
+    #     date_today_condition = f"AND oi.order_created_at BETWEEN '{start_date_today}' AND '{end_date_today}'"
 
-    date_yesterday_condition = ""
-    if start_date_yesterday and end_date_yesterday:
-        date_yesterday_condition = f"AND oi.order_created_at BETWEEN '{start_date_yesterday}' AND '{end_date_yesterday}'"
+    # date_yesterday_condition = ""
+    # if start_date_yesterday and end_date_yesterday:
+    #     date_yesterday_condition = f"AND oi.order_created_at BETWEEN '{start_date_yesterday}' AND '{end_date_yesterday}'"
 
     dates = [1, 2, 3, 4, 5]
     data = {
