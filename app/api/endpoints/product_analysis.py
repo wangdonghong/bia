@@ -30,7 +30,7 @@ class ApiResponse(BaseModel):
     data: Dict[int, List[int]]
 
 # Query function
-def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
+def get_product_analysis(request: ApiRequest) -> ApiResponse:
     # 计算偏移量
     offset = (request.page - 1) * request.limit
     # department_types_str = request.department_types
@@ -86,7 +86,10 @@ def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
         3: [12, 22, 32, 42, 52],
     }
 
-    return {"dates": dates, "data": dict(data)}
+    return ApiResponse(
+        dates=dates,
+        data=data
+    )
 
 
 @router.post("/product-analysis", response_model=ApiResponse)
