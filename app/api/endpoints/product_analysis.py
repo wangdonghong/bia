@@ -26,7 +26,7 @@ class ApiRequest(BaseModel):
 
 # Response model
 class ApiResponse(BaseModel):
-    dates: List[str]
+    dates: List[int]
     data: Dict[int, List[int]]
 
 # Query function
@@ -35,9 +35,15 @@ def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
     offset = (request.page - 1) * request.limit
 
 
-    
+    dates = [1, 2, 3, 4, 5]
+    data = {
+        1: [10, 20, 30, 40, 50],
+        2: [15, 25, 35, 45, 55],
+        3: [12, 22, 32, 42, 52],
+    }
 
-    return {"dates": offset}
+    return {"dates": dates, "data": dict(data)}
+
 
 @router.post("/product-analysis", response_model=ApiResponse)
 async def product_analysis(request: ApiRequest):
