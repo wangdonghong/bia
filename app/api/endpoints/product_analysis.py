@@ -25,6 +25,7 @@ class QueryParams(BaseModel):
 class QueryResponse(BaseModel):
     total: int
     result: List[Dict[str, Any]]
+    sql_query: str
 
 # Query function
 def query_bigquery(params: QueryParams) -> Dict[str, Any]:
@@ -85,10 +86,10 @@ def query_bigquery(params: QueryParams) -> Dict[str, Any]:
                 MAX(oipp.purchase_price) AS purchase_price,
                 MAX(oipp.buyer) AS buyer,
                 MAX(s.currency) AS currency
-            FROM `magnetic-nimbus-424204-t6.allwebi.tb_order_items` as oi
-            LEFT JOIN `magnetic-nimbus-424204-t6.allwebi.tb_order_item_purchase_price` as oipp ON oi.id = oipp.order_item_id
-            LEFT JOIN `magnetic-nimbus-424204-t6.allwebi.tb_sites` as s ON oi.site_id = s.site_id
-            LEFT JOIN `magnetic-nimbus-424204-t6.allwebi.tb_brand_department` as bd ON s.brand_department_id = bd.id
+            FROM `allwebi.tb_order_items` as oi
+            LEFT JOIN `allwebi.tb_order_item_purchase_price` as oipp ON oi.id = oipp.order_item_id
+            LEFT JOIN `allwebi.tb_sites` as s ON oi.site_id = s.site_id
+            LEFT JOIN `allwebi.tb_brand_department` as bd ON s.brand_department_id = bd.id
             WHERE 1=1 
             {date_today_condition}
             {department_type_condition}
@@ -103,7 +104,7 @@ def query_bigquery(params: QueryParams) -> Dict[str, Any]:
                 oi.site_id,
                 ROUND(SUM(oi.price), 2) AS total_order_amount_yesterday,
                 SUM(oi.quantity) AS total_purchase_quantity_yesterday
-            FROM `magnetic-nimbus-424204-t6.allwebi.tb_order_items` as oi
+            FROM `allwebi.tb_order_items` as oi
             WHERE 1=1 
             {date_yesterday_condition}
             {site_condition}
@@ -140,7 +141,7 @@ def query_bigquery(params: QueryParams) -> Dict[str, Any]:
             FROM today
             LEFT JOIN yesterday
             ON today.sku = yesterday.sku and today.site_id = yesterday.site_id
-            LEFT JOIN `magnetic-nimbus-424204-t6.allwebi.tb_exchange_rates` AS er
+            LEFT JOIN `allwebi.tb_exchange_rates` AS er
             ON today.currency = er.currency_symbol AND FORMAT_TIMESTAMP('%Y-%m', CURRENT_TIMESTAMP()) = er.exchange_date
         )
         SELECT 
@@ -163,7 +164,8 @@ def query_bigquery(params: QueryParams) -> Dict[str, Any]:
 
     return {
         "total": total_count,
-        "result": rows
+        "result": rows,
+        "sql_query": query
     }
 
 @router.post("/product-analysis", response_model=QueryResponse)
