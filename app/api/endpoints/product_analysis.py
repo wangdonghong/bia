@@ -22,6 +22,7 @@ class QueryParams(BaseModel):
 
 @router.post("/product_analysis")
 async def index(params: QueryParams):
+    return {"dates": QueryParams}
     # 获取客户端传递的日期参数和分页参数
     start_date_today = params.start_date_today
     end_date_today = params.end_date_today
