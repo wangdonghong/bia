@@ -25,7 +25,6 @@ class QueryParams(BaseModel):
 class QueryResponse(BaseModel):
     total: int
     result: List[Dict[str, Any]]
-    sql_query: str
 
 # Query function
 def query_bigquery(params: QueryParams) -> Dict[str, Any]:
@@ -164,8 +163,7 @@ def query_bigquery(params: QueryParams) -> Dict[str, Any]:
 
     return {
         "total": total_count,
-        "result": rows,
-        "sql_query": query
+        "result": rows
     }
 
 @router.post("/product-analysis", response_model=QueryResponse)
