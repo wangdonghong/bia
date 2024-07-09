@@ -9,10 +9,10 @@ router = APIRouter()
 
 # Request model
 class QueryParams(BaseModel):
-    start_date_today: str
-    end_date_today: str
-    start_date_yesterday: str
-    end_date_yesterday: str
+    start_date_today: str = ''
+    end_date_today: str = ''
+    start_date_yesterday: str = ''
+    end_date_yesterday: str = ''
     page: int = 1
     limit: int = 50
     department_types: str = ''
