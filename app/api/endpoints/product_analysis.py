@@ -32,7 +32,7 @@ class ApiResponse(BaseModel):
 # Query function
 def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
     # 计算偏移量
-    offset = (request.page - 1) * request.limit
+    # offset = (request.page - 1) * request.limit
     # department_types_str = request.department_types
     # brand_department_id = request.brand_department_id
     # site_id = request.site_id
@@ -79,14 +79,14 @@ def get_product_analysis(request: ApiRequest) -> Dict[str, Any]:
     # if start_date_yesterday and end_date_yesterday:
     #     date_yesterday_condition = f"AND oi.order_created_at BETWEEN '{start_date_yesterday}' AND '{end_date_yesterday}'"
 
-    dates = [1, 2, 3, 4, 5]
-    data = {
-        1: [10, 20, 30, 40, 50],
-        2: [15, 25, 35, 45, 55],
-        3: [12, 22, 32, 42, 52]
-    }
+    # dates = [1, 2, 3, 4, 5]
+    # data = {
+    #     1: [10, 20, 30, 40, 50],
+    #     2: [15, 25, 35, 45, 55],
+    #     3: [12, 22, 32, 42, 52]
+    # }
 
-    return {"dates": dates, "data": dict(data)}
+    # return {"dates": dates, "data": dict(data)}
 
 
 @router.post("/product-analysis")
