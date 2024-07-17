@@ -66,7 +66,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
     """
 
     # Add WHERE clause if order_date is provided
-    where_clause = "WHERE dps.order_date = @order_date" if params.order_date else ""
+    where_clause = "WHERE CAST(dps.order_date AS DATE) = @order_date" if params.order_date else ""
     
     # Format the query with the WHERE clause and pagination
     query = base_query.format(
