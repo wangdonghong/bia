@@ -48,7 +48,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 '-' AS procurement_ratio,
                 '-' AS refund_ratio
             FROM 
-                `allwebi.vw_daily_product_sales` AS dps 
+                `allwebi.mv_daily_product_sales` AS dps 
             LEFT JOIN 
                 `allwebi.tb_sites` AS s 
                 ON dps.site_id = s.site_id 
