@@ -12,6 +12,8 @@ class DailyProductReportParams(BaseModel):
     limit: int = 50
     start_date: Optional[date] = None
     end_date: Optional[date] = None
+    online_start_date: Optional[date] = None
+    online_end_date: Optional[date] = None
 
 # Response model
 class DailyProductReportResponse(BaseModel):
@@ -72,6 +74,10 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         where_conditions.append("CAST(dps.order_date AS DATE) >= @start_date")
     if params.end_date:
         where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
+    if params.online_start_date:
+        where_conditions.append("CAST(dps.latest_online_time AS DATE) >= @online_start_date")
+    if params.online_end_date:
+        where_conditions.append("CAST(dps.latest_online_time AS DATE) <= @online_end_date")
     
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
     
@@ -88,6 +94,10 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         query_params.append(bigquery.ScalarQueryParameter("start_date", "DATE", params.start_date))
     if params.end_date:
         query_params.append(bigquery.ScalarQueryParameter("end_date", "DATE", params.end_date))
+    if params.online_start_date:
+        query_params.append(bigquery.ScalarQueryParameter("online_start_date", "DATE", params.online_start_date))
+    if params.online_end_date:
+        query_params.append(bigquery.ScalarQueryParameter("online_end_date", "DATE", params.online_end_date))
 
     job_config.query_parameters = query_params
 
