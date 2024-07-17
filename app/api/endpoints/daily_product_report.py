@@ -46,8 +46,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 bd.department_name,
                 '-' AS marketing_expenses,
                 '-' AS procurement_ratio,
-                '-' AS refund_ratio,
-                SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) AS parsed_online_time
+                '-' AS refund_ratio
             FROM 
                 `allwebi.vw_daily_product_sales` AS dps 
             LEFT JOIN 
@@ -76,9 +75,17 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
     if params.end_date:
         where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
     if params.online_start_date:
-        where_conditions.append("(parsed_online_time IS NOT NULL AND DATE(parsed_online_time) >= @online_start_date)")
+        where_conditions.append("""
+            (dps.latest_online_time != '' AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
+             DATE(SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time)) >= @online_start_date)
+        """)
     if params.online_end_date:
-        where_conditions.append("(parsed_online_time IS NOT NULL AND DATE(parsed_online_time) <= @online_end_date)")
+        where_conditions.append("""
+            (dps.latest_online_time != '' AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
+             DATE(SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time)) <= @online_end_date)
+        """)
     
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
     
