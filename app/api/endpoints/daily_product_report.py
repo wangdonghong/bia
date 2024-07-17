@@ -75,9 +75,9 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
     if params.end_date:
         where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
     if params.online_start_date:
-        where_conditions.append("CAST(dps.latest_online_time AS DATE) >= @online_start_date")
+        where_conditions.append("CAST(PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) AS DATE) >= @online_start_date")
     if params.online_end_date:
-        where_conditions.append("CAST(dps.latest_online_time AS DATE) <= @online_end_date")
+        where_conditions.append("CAST(PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) AS DATE) <= @online_end_date")
     
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
     
