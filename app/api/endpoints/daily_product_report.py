@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from google.cloud import bigquery
-from datetime import date
+from datetime import date, datetime
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ class DailyProductReportParams(BaseModel):
     limit: int = 50
     start_date: Optional[date] = None
     end_date: Optional[date] = None
-    online_start_date: Optional[date] = None
-    online_end_date: Optional[date] = None
+    online_start_date: Optional[datetime] = None
+    online_end_date: Optional[datetime] = None
 
 # Response model
 class DailyProductReportResponse(BaseModel):
@@ -78,13 +78,13 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         where_conditions.append("""
             (dps.latest_online_time != '' AND 
              SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
-             DATE(SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time)) >= @online_start_date)
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) >= @online_start_date)
         """)
     if params.online_end_date:
         where_conditions.append("""
             (dps.latest_online_time != '' AND 
              SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
-             DATE(SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time)) <= @online_end_date)
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) <= @online_end_date)
         """)
     
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
@@ -103,9 +103,9 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
     if params.end_date:
         query_params.append(bigquery.ScalarQueryParameter("end_date", "DATE", params.end_date))
     if params.online_start_date:
-        query_params.append(bigquery.ScalarQueryParameter("online_start_date", "DATE", params.online_start_date))
+        query_params.append(bigquery.ScalarQueryParameter("online_start_date", "TIMESTAMP", params.online_start_date))
     if params.online_end_date:
-        query_params.append(bigquery.ScalarQueryParameter("online_end_date", "DATE", params.online_end_date))
+        query_params.append(bigquery.ScalarQueryParameter("online_end_date", "TIMESTAMP", params.online_end_date))
 
     job_config.query_parameters = query_params
 
