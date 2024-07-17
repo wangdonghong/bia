@@ -10,7 +10,8 @@ router = APIRouter()
 class DailyProductReportParams(BaseModel):
     page: int = 1
     limit: int = 50
-    order_date: Optional[date] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 # Response model
 class DailyProductReportResponse(BaseModel):
@@ -65,8 +66,14 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         LIMIT {limit} OFFSET {offset}
     """
 
-    # Add WHERE clause if order_date is provided
-    where_clause = "WHERE CAST(dps.order_date AS DATE) = @order_date" if params.order_date else ""
+    # Construct WHERE clause
+    where_conditions = []
+    if params.start_date:
+        where_conditions.append("CAST(dps.order_date AS DATE) >= @start_date")
+    if params.end_date:
+        where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
+    
+    where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
     
     # Format the query with the WHERE clause and pagination
     query = base_query.format(
@@ -77,8 +84,10 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
 
     # Set up query parameters
     query_params = []
-    if params.order_date:
-        query_params.append(bigquery.ScalarQueryParameter("order_date", "DATE", params.order_date))
+    if params.start_date:
+        query_params.append(bigquery.ScalarQueryParameter("start_date", "DATE", params.start_date))
+    if params.end_date:
+        query_params.append(bigquery.ScalarQueryParameter("end_date", "DATE", params.end_date))
 
     job_config.query_parameters = query_params
 
