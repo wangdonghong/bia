@@ -14,6 +14,7 @@ class DailyProductReportParams(BaseModel):
     end_date: Optional[date] = None
     online_start_date: Optional[datetime] = None
     online_end_date: Optional[datetime] = None
+    site_ids: Optional[str] = None  # 新增：逗号分隔的site_id字符串
 
 # Response model
 class DailyProductReportResponse(BaseModel):
@@ -48,7 +49,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 '-' AS procurement_ratio,
                 '-' AS refund_ratio
             FROM 
-                `allwebi.mv_daily_product_sales` AS dps 
+                `allwebi.vw_daily_product_sales` AS dps 
             LEFT JOIN 
                 `allwebi.tb_sites` AS s 
                 ON dps.site_id = s.site_id 
@@ -86,6 +87,9 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
              SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
              SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) <= @online_end_date)
         """)
+    if params.site_ids:
+        site_ids = [id.strip() for id in params.site_ids.split(',')]
+        where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
     
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
     
@@ -106,6 +110,9 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         query_params.append(bigquery.ScalarQueryParameter("online_start_date", "TIMESTAMP", params.online_start_date))
     if params.online_end_date:
         query_params.append(bigquery.ScalarQueryParameter("online_end_date", "TIMESTAMP", params.online_end_date))
+    if params.site_ids:
+        site_ids = [int(id.strip()) for id in params.site_ids.split(',')]
+        query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
 
     job_config.query_parameters = query_params
 
