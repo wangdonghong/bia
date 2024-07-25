@@ -35,6 +35,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
             SELECT 
                 dps.product_id AS spu,
                 dps.order_date,
+                dps.order_month,
                 dps.daily_purchase_quantity AS total_purchase_quantity,
                 dps.total_order_amount,
                 dps.total_original_price AS total_order_amount_original,
@@ -44,6 +45,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 g.title AS product_title,
                 s.brand AS site_name,
                 s.site_type,
+                s.currency,
                 bd.department_name,
                 '-' AS marketing_expenses,
                 '-' AS procurement_ratio,
