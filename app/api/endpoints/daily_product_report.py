@@ -139,7 +139,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
         total_records = 0
 
     return {
-        "total_records": total_records,
+        "total": total_records,
         "result": rows
     }
 
