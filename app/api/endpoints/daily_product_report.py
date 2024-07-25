@@ -49,10 +49,10 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 '-' AS marketing_expenses,
                 '-' AS procurement_ratio,
                 '-' AS refund_ratio,
-                ROUND(CASE 
+                CASE 
                     WHEN s.currency = 'USD' THEN dps.total_order_amount 
-                    ELSE dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny 
-                END, 2) AS total_order_amount
+                    ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
+                END AS total_order_amount
             FROM 
                 `allwebi.vw_daily_product_sales` AS dps 
             LEFT JOIN 
