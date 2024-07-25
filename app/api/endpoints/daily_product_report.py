@@ -61,6 +61,12 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
             LEFT JOIN 
                 `allwebi.tb_goods` AS g 
                 ON dps.product_id = g.p_id 
+            LEFT JOIN 
+                `allwebi.tb_exchange_rates` AS er  -- add this join
+                ON s.currency = er.currency_symbol AND dps.order_month = er.exchange_date 
+            LEFT JOIN 
+                `allwebi.tb_exchange_rates` AS er_usd  -- add this join
+                ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date 
             {where_clause}
             ORDER BY 
                 dps.order_date DESC,
