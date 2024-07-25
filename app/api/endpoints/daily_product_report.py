@@ -50,11 +50,9 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                 '-' AS marketing_expenses,
                 '-' AS procurement_ratio,
                 '-' AS refund_ratio,
-                er.rate_to_cny AS exchange_rate_cny,  -- add this column
-                er_usd.rate_to_cny AS exchange_rate_usd,  -- add this column
                 CASE 
                     WHEN s.currency = 'USD' THEN dps.total_order_amount 
-                    ELSE dps.total_order_amount * er.exchange_rate_cny / er_usd.exchange_rate 
+                    ELSE dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny 
                 END AS gmv_usd
             FROM 
                 `allwebi.vw_daily_product_sales` AS dps 
