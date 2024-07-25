@@ -18,7 +18,7 @@ class DailyProductReportParams(BaseModel):
 
 # Response model
 class DailyProductReportResponse(BaseModel):
-    total_records: int
+    total: int
     result: List[Dict[str, Any]]
 
 # Query function
