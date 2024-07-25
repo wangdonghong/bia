@@ -54,7 +54,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
                     ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
                 END AS total_order_amount
             FROM 
-                `allwebi.vw_daily_product_sales` AS dps 
+                `allwebi.mv_daily_product_sales` AS dps 
             LEFT JOIN 
                 `allwebi.tb_sites` AS s 
                 ON dps.site_id = s.site_id 
