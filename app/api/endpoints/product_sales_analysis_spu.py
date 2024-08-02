@@ -22,7 +22,7 @@ class DailyProductReportResponse(BaseModel):
     result: List[Dict[str, Any]]
 
 # 查询函数
-def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, Any]:
+def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[str, Any]:
     client = bigquery.Client()
     job_config = bigquery.QueryJobConfig(use_query_cache=True)
 
@@ -156,7 +156,7 @@ def query_daily_product_report(params: DailyProductReportParams) -> Dict[str, An
 @router.post("/product-sales-analysis-spu", response_model=DailyProductReportResponse)
 async def product_sales_analysis_spu(params: DailyProductReportParams):
     try:
-        response_data = query_daily_product_report(params)
+        response_data = query_product_sales_analysis_spu(params)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
