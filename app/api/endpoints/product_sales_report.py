@@ -58,17 +58,17 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     query_job = client.query(query, job_config=job_config)
     rows = list(query_job.result())
 
-    data_dict = defaultdict(lambda: {"qty": [], "total_order_amount": []})
+    data_dict = defaultdict(lambda: {"qty": [], "gmv": []})
     item_dates = []
 
     for row in rows:
         product_id = row.product_id
         data_dict[product_id]["qty"].append(row.daily_purchase_quantity)
-        data_dict[product_id]["total_order_amount"].append(row.total_order_amount)
+        data_dict[product_id]["gmv"].append(row.total_order_amount)
         if row.item_date not in item_dates:
             item_dates.append(row.item_date)
 
-    items = {product_id: {"qty": qty_data["qty"], "total_order_amount": qty_data["total_order_amount"]} for product_id, qty_data in data_dict.items()}
+    items = {product_id: {"qty": qty_data["qty"], "gmv": qty_data["gmv"]} for product_id, qty_data in data_dict.items()}
 
     result = [
         {
