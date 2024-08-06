@@ -66,12 +66,12 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         if row.item_date not in item_dates:
             item_dates.append(row.item_date)
 
-    items = [{"product_id": product_id, "qty": qty_data["qty"]} for product_id, qty_data in data_dict.items()]
+    items = {product_id: {"qty": qty_data["qty"]} for product_id, qty_data in data_dict.items()}
 
     result = [
         {
             "item_date": item_dates,
-            "items": items
+            "items": [items]
         }
     ]
 
