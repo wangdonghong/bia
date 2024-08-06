@@ -41,8 +41,8 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         AND dps.product_id = p.id
     WHERE 
         dd.type = 1
-        AND dd.item_date >= PARSE_DATE('%Y-%m-%d', @start_date)
-        AND dd.item_date <= PARSE_DATE('%Y-%m-%d', @end_date)
+        AND dd.item_date >= @start_date
+        AND dd.item_date <= @end_date
     ORDER BY 
         dd.item_date, p.id
     """
@@ -61,7 +61,7 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     data_dict = defaultdict(lambda: defaultdict(list))
     for row in rows:
         data_dict["product_id"].append(row.product_id)
-        data_dict["item_date"].append(row.item_date.strftime('%Y-%m-%d'))
+        data_dict["item_date"].append(row.item_date)  # 直接使用字符串日期
         data_dict["daily_purchase_quantity"].append(row.daily_purchase_quantity)
 
     total = len(set(row.product_id for row in rows))
