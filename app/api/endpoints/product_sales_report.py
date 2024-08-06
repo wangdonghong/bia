@@ -72,7 +72,7 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
 
     result = [
         {
-            "item_date": item_dates,
+            "xAxis": item_dates,
             "items": [items]
         }
     ]
