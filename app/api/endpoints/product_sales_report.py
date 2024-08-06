@@ -15,7 +15,7 @@ class ProductSalesReportParams(BaseModel):
 # Response model
 class ProductSalesReportResponse(BaseModel):
     total: int
-    result: List[Dict[str, Any]]
+    result: List[Dict[str, List[Any]]]
 
 # Query function
 def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, Any]:
@@ -58,10 +58,10 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     query_job = client.query(query, job_config=job_config)
     rows = list(query_job.result())
 
-    data_dict = defaultdict(lambda: defaultdict(list))
+    data_dict = defaultdict(list)
     for row in rows:
         data_dict["product_id"].append(row.product_id)
-        data_dict["item_date"].append(row.item_date)  # 直接使用字符串日期
+        data_dict["item_date"].append(row.item_date)
         data_dict["daily_purchase_quantity"].append(row.daily_purchase_quantity)
 
     total = len(set(row.product_id for row in rows))
