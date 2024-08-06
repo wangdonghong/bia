@@ -41,16 +41,16 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         AND dps.product_id = p.id
     WHERE 
         dd.type = 1
-        AND dd.item_date >= @start_date 
-        AND dd.item_date <= @end_date
+        AND dd.item_date >= PARSE_DATE('%Y-%m-%d', @start_date)
+        AND dd.item_date <= PARSE_DATE('%Y-%m-%d', @end_date)
     ORDER BY 
         dd.item_date, p.id
     """
 
     query_params = [
         bigquery.ArrayQueryParameter("product_ids", "STRING", params.product_ids),
-        bigquery.ScalarQueryParameter("start_date", "DATE", params.start_date),
-        bigquery.ScalarQueryParameter("end_date", "DATE", params.end_date)
+        bigquery.ScalarQueryParameter("start_date", "STRING", params.start_date),
+        bigquery.ScalarQueryParameter("end_date", "STRING", params.end_date)
     ]
 
     job_config.query_parameters = query_params
