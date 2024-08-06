@@ -15,7 +15,7 @@ class ProductSalesReportParams(BaseModel):
 # Response model
 class ProductSalesReportResponse(BaseModel):
     total: int
-    result: List[Dict[str, List[Any]]]
+    result: List[Dict[str, Any]]
 
 # Query function
 def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, Any]:
@@ -29,8 +29,7 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     SELECT 
         dd.item_date, 
         p.id AS product_id,
-        COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity,
-        COALESCE(dps.total_order_amount, 0) AS total_order_amount
+        COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity
     FROM 
         `allwebi.tb_date_dimension` AS dd
     CROSS JOIN
@@ -58,18 +57,29 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     query_job = client.query(query, job_config=job_config)
     rows = list(query_job.result())
 
-    data_dict = defaultdict(list)
-    for row in rows:
-        data_dict["product_id"].append(row.product_id)
-        data_dict["item_date"].append(row.item_date)
-        data_dict["daily_purchase_quantity"].append(row.daily_purchase_quantity)
+    data_dict = defaultdict(lambda: defaultdict(list))
+    item_dates = []
 
-    total = len(set(row.product_id for row in rows))
-    data = [dict(data_dict)]
+    for row in rows:
+        product_id = row.product_id
+        data_dict[product_id]["qty"].append(row.daily_purchase_quantity)
+        if row.item_date not in item_dates:
+            item_dates.append(row.item_date)
+
+    items = [{"product_id": product_id, "qty": qty_data["qty"]} for product_id, qty_data in data_dict.items()]
+
+    result = [
+        {
+            "item_date": item_dates,
+            "items": items
+        }
+    ]
+
+    total = len(items)
 
     return {
         "total": total,
-        "result": data
+        "result": result
     }
 
 @router.post("/product-sales-report", response_model=ProductSalesReportResponse)
