@@ -29,7 +29,8 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     SELECT 
         dd.item_date, 
         p.id AS product_id,
-        COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity
+        COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity,
+        COALESCE(dps.total_order_amount, 0) AS total_order_amount
     FROM 
         `allwebi.tb_date_dimension` AS dd
     CROSS JOIN
@@ -63,10 +64,11 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     for row in rows:
         product_id = row.product_id
         data_dict[product_id]["qty"].append(row.daily_purchase_quantity)
+        data_dict[product_id]["gmv"].append(row.total_order_amount)
         if row.item_date not in item_dates:
             item_dates.append(row.item_date)
 
-    items = {product_id: {"qty": qty_data["qty"]} for product_id, qty_data in data_dict.items()}
+    items = {product_id: {"qty": qty_data["qty"], "gmv": gmv_data["gmv"]} for product_id, qty_data, gmv_data in data_dict.items()}
 
     result = [
         {
