@@ -30,7 +30,13 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         dd.item_date, 
         p.id AS product_id,
         COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity,
-        COALESCE(dps.total_order_amount, 0) AS total_order_amount
+        COALESCE(
+            CASE 
+                WHEN s.currency = 'USD' THEN dps.total_order_amount 
+                ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
+            END, 
+            0
+        ) AS total_order_amount
     FROM 
         `allwebi.tb_date_dimension` AS dd
     CROSS JOIN
