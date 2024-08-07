@@ -39,6 +39,12 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         `allwebi.mv_daily_product_sales` AS dps 
         ON dd.item_date = dps.order_date 
         AND dps.product_id = p.id
+    LEFT JOIN 
+        `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
+    LEFT JOIN 
+        `allwebi.tb_exchange_rates` AS er ON s.currency = er.currency_symbol AND dps.order_month = er.exchange_date
+    LEFT JOIN 
+        `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date
     WHERE 
         dd.type = 1
         AND dd.item_date >= @start_date
