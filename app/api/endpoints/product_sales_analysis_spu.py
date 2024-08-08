@@ -34,18 +34,18 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         WITH total_sales AS (
             SELECT 
                 SUM(CASE 
-                      WHEN s.currency = 'USD' THEN dps1.total_order_amount 
-                      ELSE ROUND(dps1.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
+                      WHEN s.currency = 'USD' THEN dps.total_order_amount 
+                      ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
                     END) AS total_sales,
-                SUM(dps1.daily_purchase_quantity) AS total_quantity
+                SUM(dps.daily_purchase_quantity) AS total_quantity
             FROM 
-                `allwebi.mv_daily_product_sales` AS dps1
+                `allwebi.mv_daily_product_sales` AS dps
             LEFT JOIN 
-                `allwebi.tb_sites` AS s ON s.site_id = dps1.site_id
+                `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
             LEFT JOIN 
-                `allwebi.tb_exchange_rates` AS er ON s.currency = er.currency_symbol AND dps1.order_month = er.exchange_date
+                `allwebi.tb_exchange_rates` AS er ON s.currency = er.currency_symbol AND dps.order_month = er.exchange_date
             LEFT JOIN 
-                `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps1.order_month = er_usd.exchange_date
+                `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date
         ),
         main_query AS (
             SELECT 
