@@ -52,7 +52,7 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
             SELECT 
                 dps.product_id, 
                 dps.site_id,
-                MAX(g.tags),
+                MAX(g.tags) as tags,
                 SUM(dps.daily_purchase_quantity) AS total_daily_purchase_quantity,
                 SUM(CASE 
                       WHEN s.currency = 'USD' THEN dps.total_order_amount 
