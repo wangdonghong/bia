@@ -62,7 +62,7 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
                 MAX(s.brand) AS site_name,
                 MAX(bd.department_name) AS department_name,
                 MAX(dps.title) AS product_title,
-                MAX(g.image_url) AS product_img,
+                MAX(g.main_image) AS product_img,
                 FORMAT('%.8f',SUM(dps.daily_purchase_quantity) / ts.total_quantity) AS quantity_proportion,
                 FORMAT('%.8f',SUM(CASE 
                       WHEN s.currency = 'USD' THEN dps.total_order_amount 
