@@ -98,8 +98,7 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
     if params.start_date:
         where_conditions.append("CAST(dps.order_date AS DATE) >= @start_date")
     if params.end_date:
-        # where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
-        where_conditions.append("CAST(dps.order_date AS DATE) < DATE_ADD(@end_date, INTERVAL 1 DAY)")
+        where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
     if params.online_start_date:
         where_conditions.append("""
             (dps.latest_online_time != '' AND 
