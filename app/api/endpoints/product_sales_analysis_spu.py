@@ -52,7 +52,7 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
             SELECT 
                 dps.product_id, 
                 dps.site_id,
-                '' as tags,
+                g.tags,
                 SUM(dps.daily_purchase_quantity) AS total_daily_purchase_quantity,
                 SUM(CASE 
                       WHEN s.currency = 'USD' THEN dps.total_order_amount 
@@ -70,6 +70,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
                     END) / ts.total_sales) AS sales_percentage
             FROM 
                 `allwebi.mv_daily_product_sales` AS dps
+            LEFT JOIN 
+                `allwebi.tb_goods` AS g ON g.p_id = dps.product_id
             LEFT JOIN 
                 `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
             LEFT JOIN 
