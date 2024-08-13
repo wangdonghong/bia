@@ -15,7 +15,7 @@ class ProductSalesReportParams(BaseModel):
 # Response model
 class ProductSalesReportResponse(BaseModel):
     total: int
-    result: List[Dict[str, Any]]
+    result: Dict[str, Any]
 
 # Query function
 def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, Any]:
