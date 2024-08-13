@@ -83,9 +83,9 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     items = {product_id: {"qty": qty_data["qty"], "gmv": qty_data["gmv"]} for product_id, qty_data in data_dict.items()}
 
     result = {
-            "xAxis": item_dates,
-            "items": [items]
-        }
+        "xAxis": item_dates,
+        "items": items
+    }
 
     total = len(items)
 
