@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from google.cloud import bigquery
+from collections import defaultdict
 
 router = APIRouter()
 
@@ -15,30 +16,35 @@ class ProductSalesReportParams(BaseModel):
 class ProductSalesReportResponse(BaseModel):
     total: int
     result: Dict[str, Any]
-        xAxis: List[str]
-        qty_data: List[int]
-        gmv_data: List[float]
 
+# Query function
 def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, Any]:
     client = bigquery.Client()
     job_config = bigquery.QueryJobConfig(use_query_cache=True)
 
     query = """
+    WITH product_ids AS (
+        SELECT id FROM UNNEST(@product_ids) AS id
+    )
     SELECT 
-        dd.item_date,
-        SUM(COALESCE(dps.daily_purchase_quantity, 0)) AS daily_purchase_quantity,
-        SUM(COALESCE(
+        dd.item_date, 
+        p.id AS product_id,
+        COALESCE(dps.daily_purchase_quantity, 0) AS daily_purchase_quantity,
+        COALESCE(
             CASE 
                 WHEN s.currency = 'USD' THEN dps.total_order_amount 
                 ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
             END, 
             0
-        )) AS total_order_amount
+        ) AS total_order_amount
     FROM 
         `allwebi.tb_date_dimension` AS dd
+    CROSS JOIN
+        product_ids p
     LEFT JOIN 
-        `allwebi.mv_daily_product_sales` AS dps
-        ON dd.item_date = dps.order_date
+        `allwebi.mv_daily_product_sales` AS dps 
+        ON dd.item_date = dps.order_date 
+        AND dps.product_id = p.id
     LEFT JOIN 
         `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
     LEFT JOIN 
@@ -47,13 +53,10 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date
     WHERE 
         dd.type = 1
-        AND dps.product_id IN UNNEST(@product_ids)
         AND dd.item_date >= @start_date
         AND dd.item_date <= @end_date
-    GROUP BY 
-        dd.item_date
     ORDER BY 
-        dd.item_date
+        dd.item_date, p.id
     """
 
     query_params = [
@@ -67,22 +70,24 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     query_job = client.query(query, job_config=job_config)
     rows = list(query_job.result())
 
+    data_dict = defaultdict(lambda: {"qty": [], "gmv": []})
     item_dates = []
-    qty_data = []
-    gmv_data = []
 
     for row in rows:
-        item_dates.append(row.item_date)
-        qty_data.append(row.daily_purchase_quantity)
-        gmv_data.append(row.total_order_amount)
+        product_id = row.product_id
+        data_dict[product_id]["qty"].append(row.daily_purchase_quantity)
+        data_dict[product_id]["gmv"].append(row.total_order_amount)
+        if row.item_date not in item_dates:
+            item_dates.append(row.item_date)
+
+    items = {product_id: {"qty": qty_data["qty"], "gmv": qty_data["gmv"]} for product_id, qty_data in data_dict.items()}
 
     result = {
         "xAxis": item_dates,
-        "qty_data": qty_data,
-        "gmv_data": gmv_data
+        "items": items
     }
 
-    total = len(item_dates)
+    total = len(items)
 
     return {
         "total": total,
