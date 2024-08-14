@@ -92,6 +92,15 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
 
 @router.post("/product-sales-report", response_model=ProductSalesReportResponse)
 async def product_sales_report(params: ProductSalesReportParams):
+    if not params.product_ids:
+        return {
+            "total": 0,
+            "result": {
+                "xAxis": [],
+                "qty_data": [],
+                "gmv_data": []
+            }
+        }
     try:
         response_data = query_product_sales_report(params)
     except Exception as e:
