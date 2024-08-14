@@ -40,7 +40,7 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
         `allwebi.tb_date_dimension` AS dd
     LEFT JOIN 
         `allwebi.mv_daily_product_sales` AS dps
-        ON dd.item_date = dps.order_date
+        ON dd.item_date = dps.order_date AND dps.product_id IN UNNEST(@product_ids)
     LEFT JOIN 
         `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
     LEFT JOIN 
@@ -48,8 +48,7 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     LEFT JOIN 
         `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date
     WHERE 
-        dd.type = 1
-        AND dps.product_id IN UNNEST(@product_ids)
+        dd.type = 1 
         AND dd.item_date >= @start_date
         AND dd.item_date <= @end_date
     GROUP BY 
