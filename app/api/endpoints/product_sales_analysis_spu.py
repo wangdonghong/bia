@@ -14,7 +14,8 @@ class DailyProductReportParams(BaseModel):
     end_date: Optional[date] = None
     online_start_date: Optional[datetime] = None
     online_end_date: Optional[datetime] = None
-    site_ids: Optional[str] = None  # 新增：逗号分隔的site_id字符串
+    site_ids: Optional[str] = None  # 逗号分隔的site_id字符串
+    title_search: Optional[str] = None  # 新增：模糊搜索标题
 
 # 响应模型
 class DailyProductReportResponse(BaseModel):
@@ -115,9 +116,11 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         """)
     if params.site_ids:
         where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
-    
+    if params.title_search:
+        where_conditions.append("dps.title LIKE CONCAT('%', @title_search, '%')")
+
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
-    
+
     # 格式化查询语句
     query = base_query.format(
         where_clause=where_clause,
@@ -138,6 +141,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
     if params.site_ids:
         site_ids = [int(id.strip()) for id in params.site_ids.split(',')]
         query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
+    if params.title_search:
+        query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
 
     job_config.query_parameters = query_params
 
