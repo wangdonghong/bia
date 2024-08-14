@@ -65,6 +65,9 @@ def query_product_sales_summary(params: ProductSalesSummaryParams) -> Dict[str, 
     total_quantity = rows[0].total_quantity
     percentage = rows[0].percentage
 
+    if not total_quantity:
+        total_quantity = 0
+
     result = {
         "total_quantity": total_quantity,
         "percentage": percentage
