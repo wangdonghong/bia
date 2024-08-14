@@ -29,14 +29,13 @@ def query_product_sales_report(params: ProductSalesReportParams) -> Dict[str, An
     query = """
     SELECT 
         dd.item_date,
-        SUM(COALESCE(dps.daily_purchase_quantity, 0)) AS daily_purchase_quantity,
-        SUM(COALESCE(
+        COALESCE(SUM(dps.daily_purchase_quantity), 0) AS daily_purchase_quantity,
+        COALESCE(SUM(
             CASE 
                 WHEN s.currency = 'USD' THEN dps.total_order_amount 
                 ELSE ROUND(dps.total_order_amount * er.rate_to_cny / er_usd.rate_to_cny, 2) 
-            END, 
-            0
-        )) AS total_order_amount
+            END
+        ), 0) AS total_order_amount
     FROM 
         `allwebi.tb_date_dimension` AS dd
     LEFT JOIN 
