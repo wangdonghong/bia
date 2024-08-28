@@ -47,7 +47,9 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
                 `allwebi.tb_exchange_rates` AS er ON s.currency = er.currency_symbol AND dps.order_month = er.exchange_date
             LEFT JOIN 
                 `allwebi.tb_exchange_rates` AS er_usd ON 'USD' = er_usd.currency_symbol AND dps.order_month = er_usd.exchange_date
-            {where_clause}
+            WHERE 
+                CAST(dps.order_date AS DATE) >= @start_date
+                AND CAST(dps.order_date AS DATE) <= @end_date
         ),
         main_query AS (
             SELECT 
