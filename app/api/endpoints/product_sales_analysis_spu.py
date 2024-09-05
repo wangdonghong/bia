@@ -120,7 +120,7 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
     if params.site_ids:
         where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
     if params.title_search:
-        where_conditions.append("dps.title LIKE CONCAT('%', @title_search, '%')")
+        where_conditions.append("REGEXP_CONTAINS(dps.title, CONCAT('(?i)', @title_search))")
 
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
 
