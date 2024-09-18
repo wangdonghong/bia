@@ -122,10 +122,10 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
     if params.title_search:
         where_conditions.append("REGEXP_CONTAINS(dps.title, CONCAT('(?i)', @title_search))")
-    if params.tag_search:
-        tag_search_list = tag_search.split(',')
-        tag_search_regex = r'(?i)(' + '|'.join(tag_search_list) + ')'
-        where_conditions.append(f"REGEXP_CONTAINS(g.tags, '{tag_search_regex}')")
+    # if params.tag_search:
+    #     tag_search_list = tag_search.split(',')
+    #     tag_search_regex = r'(?i)(' + '|'.join(tag_search_list) + ')'
+    #     where_conditions.append(f"REGEXP_CONTAINS(g.tags, '{tag_search_regex}')")
 
     where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
 
