@@ -151,8 +151,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
     if params.title_search:
         query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
-    if params.tag_search:
-        query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
+    # if params.tag_search:
+    #     query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
 
     job_config.query_parameters = query_params
 
