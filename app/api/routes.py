@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.endpoints import order, top_products, product_analysis, daily_product_report, product_sales_analysis_spu, product_sales_report, product_sales_summary
+from app.api.endpoints import order, top_products, product_analysis, daily_product_report, product_sales_analysis_spu, product_sales_report, product_sales_summary, get_zero_sales_products
 
 api_router = APIRouter()
 api_router.include_router(order.router, prefix="/api", tags=["orders"])
