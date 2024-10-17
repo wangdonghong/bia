@@ -36,7 +36,8 @@ def query_get_zero_sales_products(params: GetZeroSalesProductsParams) -> Dict[st
         WITH main_query AS (
             SELECT p.*
 FROM `allwebi.tb_goods` p
-LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id
+LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id 
+WHERE sp.product_id IS NULL
 {where_clause}
         )
         SELECT 
@@ -79,7 +80,7 @@ LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id
         where_conditions.append(f"REGEXP_CONTAINS(p.tags, '{tag_search_regex}')")
 
 
-    where_clause = "WHERE sp.product_id IS NULL " + " AND ".join(where_conditions) if where_conditions else ""
+    where_clause = " AND ".join(where_conditions) if where_conditions else ""
 
     # 格式化查询语句
     query = base_query.format(
