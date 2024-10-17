@@ -9,3 +9,4 @@ api_router.include_router(daily_product_report.router, prefix="/api", tags=["dai
 api_router.include_router(product_sales_analysis_spu.router, prefix="/api", tags=["product_sales_analysis_spu"])
 api_router.include_router(product_sales_report.router, prefix="/api", tags=["product_sales_report"])
 api_router.include_router(product_sales_summary.router, prefix="/api", tags=["product_sales_summary"])
+api_router.include_router(get_zero_sales_products.router, prefix="/api", tags=["get_zero_sales_products"])
