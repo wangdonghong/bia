@@ -34,7 +34,7 @@ def query_get_zero_sales_products(params: GetZeroSalesProductsParams) -> Dict[st
     # 基础查询
     base_query = """
         WITH main_query AS (
-            SELECT p.*,s.brand AS site_name, bd.department_name AS department_name
+            SELECT p.p_id as product_id,p.title as product_title,p.online_time as product_online_time,p.main_image as product_img,p.tags,s.brand AS site_name, bd.department_name AS department_name
 FROM `allwebi.tb_goods` p
 LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id 
 LEFT JOIN 
