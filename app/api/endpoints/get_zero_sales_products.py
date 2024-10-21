@@ -12,6 +12,7 @@ class GetZeroSalesProductsParams(BaseModel):
     limit: int = 50
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    site_ids: Optional[str] = None
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -68,14 +69,19 @@ WHERE sp.product_id IS NULL
             end_date=end_date
         )
 
+    site_id_filter = ""
+    if params.site_ids:
+        site_id_filter = "AND p.site_id IN UNNEST(@site_ids)"
+
     query = base_query.format(
         limit=params.limit,
         offset=offset,
-        create_time_filter=create_time_filter
+        create_time_filter=create_time_filter,
+        site_id_filter=site_id_filter
     )
 
     # 执行查询
-    query_job = client.query(query, job_config=job_config)
+    query_job = client.query(query, job_config=job_config, params={'site_ids': params.site_ids})
 
     # 处理查询结果
     rows = [dict(row) for row in query_job]
