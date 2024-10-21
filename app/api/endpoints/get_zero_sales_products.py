@@ -47,7 +47,10 @@ WHERE sp.product_id IS NULL
         LIMIT {limit} OFFSET {offset}
     """
 
-
+    query = base_query.format(
+        limit=params.limit,
+        offset=offset
+    )
 
     # 执行查询
     query_job = client.query(query, job_config=job_config)
