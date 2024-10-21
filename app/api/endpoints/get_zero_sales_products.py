@@ -53,18 +53,18 @@ WHERE sp.product_id IS NULL
     if params.start_date and params.end_date:
         start_date = datetime.strptime(params.start_date, "%Y-%m-%d").date()
         end_date = datetime.strptime(params.end_date, "%Y-%m-%d").date()
-        create_time_filter = "AND DATE(main_query.create_time) BETWEEN '{start_date}' AND '{end_date}'".format(
+        create_time_filter = "AND DATE(p.create_time) BETWEEN '{start_date}' AND '{end_date}'".format(
             start_date=start_date,
             end_date=end_date
         )
     elif params.start_date:
         start_date = datetime.strptime(params.start_date, "%Y-%m-%d").date()
-        create_time_filter = "AND DATE(main_query.create_time) >= '{start_date}'".format(
+        create_time_filter = "AND DATE(p.create_time) >= '{start_date}'".format(
             start_date=start_date
         )
     elif params.end_date:
         end_date = datetime.strptime(params.end_date, "%Y-%m-%d").date()
-        create_time_filter = "AND DATE(main_query.create_time) <= '{end_date}'".format(
+        create_time_filter = "AND DATE(p.create_time) <= '{end_date}'".format(
             end_date=end_date
         )
 
