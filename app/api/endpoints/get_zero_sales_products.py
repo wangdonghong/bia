@@ -14,6 +14,7 @@ class GetZeroSalesProductsParams(BaseModel):
     end_date: Optional[str] = None
     site_ids: Optional[str] = None
     title_search: Optional[str] = None
+    tag_search: Optional[str] = None
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -42,6 +43,7 @@ WHERE sp.product_id IS NULL
         {create_time_filter}
         {site_id_filter}
         {title_search_filter}
+        {tag_search_filter}
         )
         SELECT 
             main_query.*,
@@ -80,12 +82,21 @@ WHERE sp.product_id IS NULL
     if params.title_search:
         title_search_filter = "AND REGEXP_CONTAINS(p.title, CONCAT('(?i)', @title_search))"
 
+    tag_search_filter = ""
+    if params.tag_search:
+        tag_search_list = params.tag_search.split(',')
+        tag_search_regex = r'(?i)(' + '|'.join(tag_search_list) + ')'
+        tag_search_filter = "AND REGEXP_CONTAINS(p.tags, '{tag_search_regex}')".format(
+            tag_search_regex=tag_search_regex
+        )
+
     query = base_query.format(
         limit=params.limit,
         offset=offset,
         create_time_filter=create_time_filter,
         site_id_filter=site_id_filter,
-        title_search_filter=title_search_filter
+        title_search_filter=title_search_filter,
+        tag_search_filter=tag_search_filter
     )
 
     query_params = []
@@ -94,6 +105,8 @@ WHERE sp.product_id IS NULL
         query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
     if params.title_search:
         query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
+    if params.tag_search:
+        query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
 
     job_config.query_parameters = query_params
 
