@@ -37,14 +37,13 @@ LEFT JOIN
             LEFT JOIN 
                 `allwebi.tb_brand_department` AS bd ON s.brand_department_id = bd.id 
 WHERE sp.product_id IS NULL
+        {create_time_filter}
         )
         SELECT 
             main_query.*,
             (SELECT COUNT(*) FROM main_query) AS total_records
         FROM 
             main_query
-        WHERE 1=1
-        {create_time_filter}
         ORDER BY 
             online_time DESC
         LIMIT {limit} OFFSET {offset}
@@ -52,17 +51,21 @@ WHERE sp.product_id IS NULL
 
     create_time_filter = ""
     if params.start_date and params.end_date:
+        start_date = datetime.strptime(params.start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(params.end_date, "%Y-%m-%d").date()
         create_time_filter = "AND DATE(main_query.create_time) BETWEEN '{start_date}' AND '{end_date}'".format(
-            start_date=params.start_date,
-            end_date=params.end_date
+            start_date=start_date,
+            end_date=end_date
         )
     elif params.start_date:
+        start_date = datetime.strptime(params.start_date, "%Y-%m-%d").date()
         create_time_filter = "AND DATE(main_query.create_time) >= '{start_date}'".format(
-            start_date=params.start_date
+            start_date=start_date
         )
     elif params.end_date:
+        end_date = datetime.strptime(params.end_date, "%Y-%m-%d").date()
         create_time_filter = "AND DATE(main_query.create_time) <= '{end_date}'".format(
-            end_date=params.end_date
+            end_date=end_date
         )
 
     query = base_query.format(
