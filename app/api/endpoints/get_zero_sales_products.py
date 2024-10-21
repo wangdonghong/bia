@@ -81,8 +81,15 @@ WHERE sp.product_id IS NULL
         site_id_filter=site_id_filter
     )
 
+    query_params = []
+    if params.site_ids:
+        site_ids = [int(id.strip()) for id in params.site_ids.split(',')]
+        query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
+
+    job_config.query_parameters = query_params
+
     # 执行查询
-    query_job = client.query(query, job_config=job_config, params={'site_ids': params.site_ids})
+    query_job = client.query(query, job_config=job_config)
 
     # 处理查询结果
     rows = [dict(row) for row in query_job]
