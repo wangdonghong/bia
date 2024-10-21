@@ -39,6 +39,7 @@ LEFT JOIN
                 `allwebi.tb_brand_department` AS bd ON s.brand_department_id = bd.id 
 WHERE sp.product_id IS NULL
         {create_time_filter}
+        {site_id_filter}
         )
         SELECT 
             main_query.*,
