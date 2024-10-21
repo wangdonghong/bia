@@ -10,13 +10,7 @@ router = APIRouter()
 class GetZeroSalesProductsParams(BaseModel):
     page: int = 1
     limit: int = 50
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    online_start_date: Optional[datetime] = None
-    online_end_date: Optional[datetime] = None
-    site_ids: Optional[str] = None  # 逗号分隔的site_id字符串
-    title_search: Optional[str] = None  # 新增：模糊搜索标题
-    tag_search: Optional[str] = None
+
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -42,7 +36,6 @@ LEFT JOIN
             LEFT JOIN 
                 `allwebi.tb_brand_department` AS bd ON s.brand_department_id = bd.id 
 WHERE sp.product_id IS NULL
-{where_clause}
         )
         SELECT 
             main_query.*,
@@ -54,64 +47,7 @@ WHERE sp.product_id IS NULL
         LIMIT {limit} OFFSET {offset}
     """
 
-    # 构建 WHERE 子句
-    where_conditions = []
-    if params.start_date:
-        where_conditions.append("CAST(p.create_time AS DATE) >= @start_date")
-    if params.end_date:
-        where_conditions.append("CAST(p.create_time AS DATE) <= @end_date")
-    if params.online_start_date:
-        where_conditions.append("""
-            (p.online_time != '' AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', p.online_time) IS NOT NULL AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', p.online_time) >= @online_start_date)
-        """)
-    if params.online_end_date:
-        where_conditions.append("""
-            (p.online_time != '' AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', p.online_time) IS NOT NULL AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', p.online_time) <= @online_end_date)
-        """)
-    if params.site_ids:
-        where_conditions.append(f"p.site_id IN UNNEST(@site_ids)")
-    if params.title_search:
-        where_conditions.append("REGEXP_CONTAINS(p.title, CONCAT('(?i)', @title_search))")
-    # if params.tag_search:
-    #     where_conditions.append("REGEXP_CONTAINS(g.tags, CONCAT('(?i)', @tag_search))")
-    if params.tag_search:
-        tag_search_list = params.tag_search.split(',')
-        tag_search_regex = r'(?i)(' + '|'.join(tag_search_list) + ')'
-        where_conditions.append(f"REGEXP_CONTAINS(p.tags, '{tag_search_regex}')")
 
-
-    where_clause = " AND ".join(where_conditions) if where_conditions else ""
-
-    # 格式化查询语句
-    query = base_query.format(
-        where_clause=where_clause,
-        limit=params.limit,
-        offset=offset
-    )
-
-    # 设置查询参数
-    query_params = []
-    if params.start_date:
-        query_params.append(bigquery.ScalarQueryParameter("start_date", "DATE", params.start_date))
-    if params.end_date:
-        query_params.append(bigquery.ScalarQueryParameter("end_date", "DATE", params.end_date))
-    if params.online_start_date:
-        query_params.append(bigquery.ScalarQueryParameter("online_start_date", "TIMESTAMP", params.online_start_date))
-    if params.online_end_date:
-        query_params.append(bigquery.ScalarQueryParameter("online_end_date", "TIMESTAMP", params.online_end_date))
-    if params.site_ids:
-        site_ids = [int(id.strip()) for id in params.site_ids.split(',')]
-        query_params.append(bigquery.ArrayQueryParameter("site_ids", "INT64", site_ids))
-    if params.title_search:
-        query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
-    if params.tag_search:
-        query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
-
-    job_config.query_parameters = query_params
 
     # 执行查询
     query_job = client.query(query, job_config=job_config)
