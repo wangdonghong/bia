@@ -10,7 +10,8 @@ router = APIRouter()
 class GetZeroSalesProductsParams(BaseModel):
     page: int = 1
     limit: int = 50
-    create_time: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -50,8 +51,19 @@ WHERE sp.product_id IS NULL
     """
 
     create_time_filter = ""
-    if params.create_time:
-        create_time_filter = "AND DATE_FORMAT(main_query.create_time, '%Y-%m-%d %H:%i:%s') = '{create_time}'".format(create_time=params.create_time)
+    if params.start_date and params.end_date:
+        create_time_filter = "AND DATE(main_query.create_time) BETWEEN '{start_date}' AND '{end_date}'".format(
+            start_date=params.start_date,
+            end_date=params.end_date
+        )
+    elif params.start_date:
+        create_time_filter = "AND DATE(main_query.create_time) >= '{start_date}'".format(
+            start_date=params.start_date
+        )
+    elif params.end_date:
+        create_time_filter = "AND DATE(main_query.create_time) <= '{end_date}'".format(
+            end_date=params.end_date
+        )
 
     query = base_query.format(
         limit=params.limit,
