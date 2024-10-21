@@ -10,7 +10,7 @@ router = APIRouter()
 class GetZeroSalesProductsParams(BaseModel):
     page: int = 1
     limit: int = 50
-
+    create_time: Optional[str] = None
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -28,7 +28,7 @@ def query_get_zero_sales_products(params: GetZeroSalesProductsParams) -> Dict[st
     # 基础查询
     base_query = """
         WITH main_query AS (
-            SELECT p.p_id as product_id,p.title as product_title,p.online_time,p.main_image as product_img,p.tags,s.brand AS site_name, bd.department_name AS department_name
+            SELECT p.p_id as product_id,p.title as product_title,p.online_time,p.main_image as product_img,p.tags,s.brand AS site_name, bd.department_name AS department_name, p.create_time
 FROM `allwebi.tb_goods` p
 LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id 
 LEFT JOIN 
@@ -42,14 +42,21 @@ WHERE sp.product_id IS NULL
             (SELECT COUNT(*) FROM main_query) AS total_records
         FROM 
             main_query
+        WHERE 1=1
+        {create_time_filter}
         ORDER BY 
             online_time DESC
         LIMIT {limit} OFFSET {offset}
     """
 
+    create_time_filter = ""
+    if params.create_time:
+        create_time_filter = "AND DATE_FORMAT(main_query.create_time, '%Y-%m-%d %H:%i:%s') = '{create_time}'".format(create_time=params.create_time)
+
     query = base_query.format(
         limit=params.limit,
-        offset=offset
+        offset=offset,
+        create_time_filter=create_time_filter
     )
 
     # 执行查询
