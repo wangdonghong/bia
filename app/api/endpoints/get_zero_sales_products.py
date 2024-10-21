@@ -12,6 +12,8 @@ class GetZeroSalesProductsParams(BaseModel):
     limit: int = 50
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    online_start_date: Optional[str] = None
+    online_end_date: Optional[str] = None
     site_ids: Optional[str] = None
     title_search: Optional[str] = None
     tag_search: Optional[str] = None
@@ -44,6 +46,7 @@ WHERE sp.product_id IS NULL
         {site_id_filter}
         {title_search_filter}
         {tag_search_filter}
+        {online_time_filter}
         )
         SELECT 
             main_query.*,
@@ -74,6 +77,25 @@ WHERE sp.product_id IS NULL
             end_date=end_date
         )
 
+    online_time_filter = ""
+    if params.online_start_date and params.online_end_date:
+        online_start_date = datetime.strptime(params.online_start_date, "%Y-%m-%d").date()
+        online_end_date = datetime.strptime(params.online_end_date, "%Y-%m-%d").date()
+        online_time_filter = "AND DATE(p.online_time) BETWEEN '{online_start_date}' AND '{online_end_date}'".format(
+            online_start_date=online_start_date,
+            online_end_date=online_end_date
+        )
+    elif params.online_start_date:
+        online_start_date = datetime.strptime(params.online_start_date, "%Y-%m-%d").date()
+        online_time_filter = "AND DATE(p.online_time) >= '{online_start_date}'".format(
+            online_start_date=online_start_date
+        )
+    elif params.online_end_date:
+        online_end_date = datetime.strptime(params.online_end_date, "%Y-%m-%d").date()
+        online_time_filter = "AND DATE(p.online_time) <= '{online_end_date}'".format(
+            online_end_date=online_end_date
+        )
+
     site_id_filter = ""
     if params.site_ids:
         site_id_filter = "AND p.site_id IN UNNEST(@site_ids)"
@@ -96,7 +118,8 @@ WHERE sp.product_id IS NULL
         create_time_filter=create_time_filter,
         site_id_filter=site_id_filter,
         title_search_filter=title_search_filter,
-        tag_search_filter=tag_search_filter
+        tag_search_filter=tag_search_filter,
+        online_time_filter=online_time_filter
     )
 
     query_params = []
