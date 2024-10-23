@@ -17,6 +17,7 @@ class GetZeroSalesProductsParams(BaseModel):
     site_ids: Optional[str] = None
     title_search: Optional[str] = None
     tag_search: Optional[str] = None
+    custom_tag_search: Optional[str] = None
 
 # 响应模型
 class GetZeroSalesProductsResponse(BaseModel):
@@ -34,7 +35,7 @@ def query_get_zero_sales_products(params: GetZeroSalesProductsParams) -> Dict[st
     # 基础查询
     base_query = """
         WITH main_query AS (
-            SELECT p.p_id as product_id,p.title as product_title,p.online_time,p.main_image as product_img,p.tags,s.brand AS site_name, bd.department_name AS department_name, p.create_time
+            SELECT p.p_id as product_id,p.title as product_title,p.online_time,p.main_image as product_img,p.tags,s.brand AS site_name, bd.department_name AS department_name
 FROM `allwebi.tb_goods` p
 LEFT JOIN `allwebi.mv_sold_products` sp ON p.p_id = sp.product_id 
 LEFT JOIN 
@@ -47,6 +48,7 @@ WHERE sp.product_id IS NULL
         {title_search_filter}
         {tag_search_filter}
         {online_time_filter}
+        {custom_tag_filter}
         )
         SELECT 
             main_query.*,
@@ -104,6 +106,10 @@ WHERE sp.product_id IS NULL
     if params.title_search:
         title_search_filter = "AND REGEXP_CONTAINS(p.title, CONCAT('(?i)', @title_search))"
 
+    custom_tag_filter = ""
+    if params.custom_tag_search:
+        custom_tag_filter = "AND REGEXP_CONTAINS(p.title, CONCAT('(?i)', @custom_tag_search))"
+
     tag_search_filter = ""
     if params.tag_search:
         tag_search_list = params.tag_search.split(',')
@@ -119,7 +125,8 @@ WHERE sp.product_id IS NULL
         site_id_filter=site_id_filter,
         title_search_filter=title_search_filter,
         tag_search_filter=tag_search_filter,
-        online_time_filter=online_time_filter
+        online_time_filter=online_time_filter,
+        custom_tag_filter=custom_tag_filter
     )
 
     query_params = []
@@ -130,6 +137,8 @@ WHERE sp.product_id IS NULL
         query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
     if params.tag_search:
         query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
+    if params.custom_tag_search:
+        query_params.append(bigquery.ScalarQueryParameter("custom_tag_search", "STRING", params.custom_tag_search))
 
     job_config.query_parameters = query_params
 
