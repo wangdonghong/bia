@@ -42,6 +42,8 @@ LEFT JOIN
                 `allwebi.tb_sites` AS s ON s.site_id = p.site_id
             LEFT JOIN 
                 `allwebi.tb_brand_department` AS bd ON s.brand_department_id = bd.id 
+            LEFT JOIN 
+            `allwebi.tb_goods_tag` AS gt ON gt.product_spu = p.p_id 
 WHERE sp.product_id IS NULL
         {create_time_filter}
         {site_id_filter}
@@ -108,7 +110,7 @@ WHERE sp.product_id IS NULL
 
     custom_tag_filter = ""
     if params.custom_tag_search:
-        custom_tag_filter = "AND REGEXP_CONTAINS(p.title, CONCAT('(?i)', @custom_tag_search))"
+        custom_tag_filter = "AND REGEXP_CONTAINS(gt.tag, CONCAT('(?i)', @custom_tag_search))"
 
     tag_search_filter = ""
     if params.tag_search:
