@@ -17,6 +17,7 @@ class DailyProductReportParams(BaseModel):
     site_ids: Optional[str] = None  # 逗号分隔的site_id字符串
     title_search: Optional[str] = None  # 新增：模糊搜索标题
     tag_search: Optional[str] = None
+    custom_tag_search: Optional[str] = None
 
 # 响应模型
 class DailyProductReportResponse(BaseModel):
@@ -80,6 +81,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
             LEFT JOIN 
                 `allwebi.tb_sites` AS s ON s.site_id = dps.site_id
             LEFT JOIN 
+                `allwebi.tb_goods_tag` AS gt ON gt.product_spu = g.p_id
+            LEFT JOIN 
                 `allwebi.tb_brand_department` AS bd ON s.brand_department_id = bd.id
             LEFT JOIN 
                 `allwebi.tb_exchange_rates` AS er ON s.currency = er.currency_symbol AND dps.order_month = er.exchange_date
@@ -122,6 +125,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
     if params.title_search:
         where_conditions.append("REGEXP_CONTAINS(dps.title, CONCAT('(?i)', @title_search))")
+    if params.custom_tag_search:
+        where_conditions.append("REGEXP_CONTAINS(gt.tag, CONCAT('(?i)', @custom_tag_search))")
     # if params.tag_search:
     #     where_conditions.append("REGEXP_CONTAINS(g.tags, CONCAT('(?i)', @tag_search))")
     if params.tag_search:
@@ -156,6 +161,8 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         query_params.append(bigquery.ScalarQueryParameter("title_search", "STRING", params.title_search))
     if params.tag_search:
         query_params.append(bigquery.ScalarQueryParameter("tag_search", "STRING", params.tag_search))
+    if params.custom_tag_search:
+        query_params.append(bigquery.ScalarQueryParameter("custom_tag_search", "STRING", params.custom_tag_search))
 
     job_config.query_parameters = query_params
 
