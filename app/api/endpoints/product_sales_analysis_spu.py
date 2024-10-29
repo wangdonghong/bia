@@ -111,15 +111,15 @@ def query_product_sales_analysis_spu(params: DailyProductReportParams) -> Dict[s
         where_conditions.append("CAST(dps.order_date AS DATE) <= @end_date")
     if params.online_start_date:
         where_conditions.append("""
-            (dps.latest_online_time != '' AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) >= @online_start_date)
+            (g.online_time != '' AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', g.online_time) IS NOT NULL AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', g.online_time) >= @online_start_date)
         """)
     if params.online_end_date:
         where_conditions.append("""
-            (dps.latest_online_time != '' AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) IS NOT NULL AND 
-             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', dps.latest_online_time) <= @online_end_date)
+            (g.online_time != '' AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', g.online_time) IS NOT NULL AND 
+             SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', g.online_time) <= @online_end_date)
         """)
     if params.site_ids:
         where_conditions.append(f"dps.site_id IN UNNEST(@site_ids)")
