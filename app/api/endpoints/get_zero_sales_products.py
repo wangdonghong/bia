@@ -85,18 +85,18 @@ WHERE sp.product_id IS NULL
     if params.online_start_date and params.online_end_date:
         online_start_date = datetime.strptime(params.online_start_date, "%Y-%m-%d").date()
         online_end_date = datetime.strptime(params.online_end_date, "%Y-%m-%d").date()
-        online_time_filter = "AND DATE(p.online_time) BETWEEN '{online_start_date}' AND '{online_end_date}'".format(
+        online_time_filter = "AND g.online_time != '' AND DATE(p.online_time) BETWEEN '{online_start_date}' AND '{online_end_date}'".format(
             online_start_date=online_start_date,
             online_end_date=online_end_date
         )
     elif params.online_start_date:
         online_start_date = datetime.strptime(params.online_start_date, "%Y-%m-%d").date()
-        online_time_filter = "AND DATE(p.online_time) >= '{online_start_date}'".format(
+        online_time_filter = "AND g.online_time != '' AND DATE(p.online_time) >= '{online_start_date}'".format(
             online_start_date=online_start_date
         )
     elif params.online_end_date:
         online_end_date = datetime.strptime(params.online_end_date, "%Y-%m-%d").date()
-        online_time_filter = "AND DATE(p.online_time) <= '{online_end_date}'".format(
+        online_time_filter = "AND g.online_time != '' AND DATE(p.online_time) <= '{online_end_date}'".format(
             online_end_date=online_end_date
         )
 
