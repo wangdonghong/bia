@@ -110,7 +110,12 @@ WHERE sp.product_id IS NULL
 
     custom_tag_filter = ""
     if params.custom_tag_search:
-        custom_tag_filter = "AND REGEXP_CONTAINS(gt.tag, CONCAT('(?i)', @custom_tag_search))"
+        custom_tag_search_list = params.custom_tag_search.split(',')
+        custom_tag_search_regex = r'(?i)(' + '|'.join(custom_tag_search_list) + ')'
+        custom_tag_filter = "AND REGEXP_CONTAINS(gt.tag, '{custom_tag_search_regex}')".format(
+            custom_tag_search_regex=custom_tag_search_regex
+        )
+        # custom_tag_filter = "AND REGEXP_CONTAINS(gt.tag, CONCAT('(?i)', @custom_tag_search))"
 
     tag_search_filter = ""
     if params.tag_search:
